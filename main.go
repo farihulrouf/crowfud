@@ -3,6 +3,8 @@ import (
 	"log"
 	"gorm.io/gorm"
 	"gorm.io/driver/sqlite"
+    "github.com/gin-gonic/gin"
+    "crowdgo/handler"
 	"crowdgo/user"
 	"fmt"
 )
@@ -16,8 +18,23 @@ func main() {
     fmt.Println("Connection Success")
 
     userRepository := user.NewRepository(db)
-    user := user.User{
-    	Name: "Test Save",
-    }
-    userRepository.Save(user)
+    userService := user.NewService(userRepository)
+
+    userHandler := handler.NewUserHandler(userService)
+
+    router := gin.Default()
+
+    api := router.Group("api/v1")
+    api.POST("/users", userHandler.RegisterUser)
+    router.Run(":8111")
+
+    /*
+    userInput := user.RegisterUserInput{}
+    userInput.Name = "Test simpan dari service"
+    userInput.Email = "contoh@gmail.com"
+    userInput.Occupation = "Anak aband"
+    userInput.Password = "password"
+
+    userService.RegisterUser(userInput)
+    */
 }
