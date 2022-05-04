@@ -3,6 +3,7 @@ import (
     "github.com/gin-gonic/gin"
     "net/http"
     "crowdgo/user"
+    "crowdgo/helper"
 )
 type userHandler struct {
 	userService user.Service
@@ -22,10 +23,13 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, nil)
 	}
 
-	user, err := h.userService.RegisterUser(input)
+	newUser, err := h.userService.RegisterUser(input)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, nil)
 	}
 
-	c.JSON(http.StatusOK, user)
+	formatter := user.FormatUser(newUser, "tokeokeokeaorkaer")
+
+	response := helper.APIResponse("Account has been registered", http.StatusOK, "success", formatter)
+	c.JSON(http.StatusOK, response)
 }
