@@ -1,10 +1,12 @@
 package handler
-import (	
-    "github.com/gin-gonic/gin"
-    "net/http"
-    "crowdgo/user"
-    "crowdgo/helper"
+
+import (
+	"crowdgo/helper"
+	"crowdgo/user"
+	"net/http"
+	"github.com/gin-gonic/gin"
 )
+
 type userHandler struct {
 	userService user.Service
 }
@@ -14,22 +16,46 @@ func NewUserHandler(userService user.Service) *userHandler {
 }
 
 func (h *userHandler) RegisterUser(c *gin.Context) {
-	//tangkap input dari user
-	// map input dari user ke struct resiger input
-	//strukct di atas kita passing sebagai parameter service
 	var input user.RegisterUserInput
+
 	err := c.ShouldBindJSON(&input)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, nil)
+		
+		errors := helper.FormatValidationError(err)
+		errorMesage := gin.H{"errors": errors}
+
+		response := helper.APIResponse("Register account failed", http.StatusUnprocessableEntity, "error", errorMesage)
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
 	}
 
 	newUser, err := h.userService.RegisterUser(input)
+
 	if err != nil {
-		c.JSON(http.StatusBadRequest, nil)
+		response := helper.APIResponse("Register account failed", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
 	}
 
-	formatter := user.FormatUser(newUser, "tokeokeokeaorkaer")
+	//token, err := h.authService.GenerateToken(newUser.ID)
+	/*if err != nil {
+		response := helper.APIResponse("Register account failed", http.StatusBadRequest, "error", nil)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	*/
+
+	formatter := user.FormatUser(newUser, "8273468237462378")
 
 	response := helper.APIResponse("Account has been registered", http.StatusOK, "success", formatter)
+
 	c.JSON(http.StatusOK, response)
 }
+
+
+
+
+
+
+
+
