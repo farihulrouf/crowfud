@@ -6,6 +6,7 @@ import (
     "github.com/gin-gonic/gin"
     "crowdgo/handler"
 	"crowdgo/user"
+    "crowdgo/todo"
 	"fmt"
 )
 
@@ -22,10 +23,16 @@ func main() {
 
     userHandler := handler.NewUserHandler(userService)
 
+
+    todoRepository := todo.NewRepository(db)
+    todoService := todo.NewService(todoRepository)
+    todoHandler  := handler.NewTodoHandler(todoService)
+
     router := gin.Default()
 
     api := router.Group("api/v1")
     api.POST("/users", userHandler.RegisterUser)
+    api.POST("/todo", todoHandler.CreateTodo)
     router.Run(":8111")
 
     /*
