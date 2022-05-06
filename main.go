@@ -11,12 +11,15 @@ import (
 )
 
 func main() {	
-    db, err := gorm.Open(sqlite.Open("main.db"), &gorm.Config{})
+    db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 
     if err != nil {
     	log.Fatal(err.Error())
     }
     fmt.Println("Connection Success")
+    //db.AutoMigrate(&user.User{}) //create Migrate
+    //db.AutoMigrate(&todo.Todo{}) //create Migrate
+    
 
     userRepository := user.NewRepository(db)
     userService := user.NewService(userRepository)
@@ -27,12 +30,14 @@ func main() {
     todoRepository := todo.NewRepository(db)
     todoService := todo.NewService(todoRepository)
     todoHandler  := handler.NewTodoHandler(todoService)
-
+    
     router := gin.Default()
-
+    
     api := router.Group("api/v1")
     api.POST("/users", userHandler.RegisterUser)
+    api.POST("/sessions", userHandler.Login)
     api.POST("/todo", todoHandler.CreateTodo)
+    
     router.Run(":8111")
 
     /*
